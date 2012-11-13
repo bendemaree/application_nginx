@@ -1,8 +1,10 @@
+<% if @hosts.count > 0 %>
 upstream <%= @resource.application.name %> {
   <% @hosts.each do |node| %>
   server <%= node.attribute?('cloud') ? node['cloud']['local_ipv4'] : node['ipaddress'] %>:<%= @resource.application_port %>;
   <% end %>
 }
+<% end %>
 
 server {
   listen <%= @resource.port %>;
@@ -17,7 +19,9 @@ server {
     alias <%= path %>;
   }
   <% end %>
+  <% if @hosts.count > 0 %>
   location / {
     proxy_pass http://<%= @resource.application.name %>;
   }
+  <% end %>
 }
